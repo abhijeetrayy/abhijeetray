@@ -95,15 +95,26 @@ const footerLinks = [
 export default function Home() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-
+  const [isMouseConnected, setIsMouseConnected] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHoveringLink, setIsHoveringLink] = useState(false); // Track hover state
   const words = ["Hi.", "it's", "Abhijeet", "Ray", "🧡"];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    setPosition({ x: e.clientX, y: e.clientY });
-  };
+  useEffect(() => {
+    // Function to check if a mouse/trackpad is available
+    const checkPointer = () => {
+      setIsMouseConnected(window.matchMedia("(pointer: fine)").matches);
+    };
+
+    // Run check on mount and on resize
+    checkPointer();
+    window.addEventListener("resize", checkPointer);
+
+    return () => {
+      window.removeEventListener("resize", checkPointer);
+    };
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -111,6 +122,12 @@ export default function Home() {
     }, 500);
     return () => clearInterval(interval);
   }, []);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMouseConnected) {
+      setPosition({ x: e.clientX, y: e.clientY });
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,12 +143,12 @@ export default function Home() {
 
   return (
     <div
-      className="relative w-full min-h-screen"
+      className="relative w-full"
       onMouseMove={handleMouseMove}
-      style={{ cursor: "none" }}
+      style={{ cursor: isMouseConnected ? "none" : "auto" }}
     >
-      {/* Custom Cursor Effect */}
-      {!isHoveringLink && (
+      {/* Custom Cursor Effect - Only Show if Mouse is Connected */}
+      {isMouseConnected && !isHoveringLink && (
         <div
           className="fixed pointer-events-none text-lg font-semibold text-neutral-600"
           style={{
@@ -139,37 +156,27 @@ export default function Home() {
             top: position.y,
             transform: "translate(-50%, -50%)",
             whiteSpace: "nowrap",
-            zIndex: 1000, // Ensure it's above other elements
+            zIndex: 1000,
           }}
         >
           {words[currentWordIndex]}
         </div>
       )}
-      {/* Palm Cursor on Hover */}
-      {/* {isHoveringLink && (
-        <div
-          className="fixed pointer-events-none"
-          style={{
-            left: position.x,
-            top: position.y,
-            transform: "translate(-50%, -50%)",
-            zIndex: 1000,
-          }}
-        > */}
-      {/* Palm cursor emoji */}
-      {/* </div>
-      )} */}
-      <style jsx>{`
-        * {
-          cursor: none !important; /* Hide cursor globally */
-        }
-        a,
-        button,
-        input,
-        textarea {
-          cursor: pointer !important; /* Force pointer cursor on interactive elements */
-        }
-      `}</style>
+
+      {/* Hide Default Cursor Only When Mouse is Connected */}
+      {isMouseConnected && (
+        <style jsx>{`
+          * {
+            cursor: none !important;
+          }
+          a,
+          button,
+          input,
+          textarea {
+            cursor: pointer !important;
+          }
+        `}</style>
+      )}
       <div className="max-w-3xl m-auto mb-10 px-3 flex gap-5 flex-col">
         {/* Sticky Navbar */}
         <nav className="sticky top-0 bg-white border-b -sm z-50">
