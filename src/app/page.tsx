@@ -3,12 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import ProfilePic from "../../public/IMG20220124231430.jpg";
-import U1 from "../../public/u1.png";
-import U2 from "../../public/u2.png";
-import U3 from "../../public/u3.png";
-import L1 from "../../public/l1.png";
-import L2 from "../../public/l2.png";
-import L3 from "../../public/l3.png";
 
 // Interface for Link Item Props
 interface LinkItemProps {
@@ -49,7 +43,6 @@ const projects = [
     label: "Cinema Social Media",
     description:
       "A platform where movie enthusiasts connect and discuss films.",
-    images: [L3.src, L2.src, L1.src],
     tools: ["Next.js", "Supabase", "Tailwind CSS", "PostgreSQL"],
   },
   {
@@ -58,8 +51,24 @@ const projects = [
     label: "University Course Forum",
     description:
       "A discussion platform for university students to share resources and knowledge.",
-    images: [U1.src, U2.src, U3.src],
     tools: ["React", "Node.js", "MongoDB", "GraphQL"],
+  },
+];
+
+const Writting = [
+  {
+    href: "https://abhijeetray.hashnode.dev/building-a-scalable-fullstack-application-with-nextjs-and-supabase-a-step-by-step-guide",
+
+    label: "Scalable FullStack Application with Next.js and Supabase",
+    description:
+      "A platform where movie enthusiasts connect and discuss films.",
+  },
+  {
+    href: "https://example.com/university-course-forum",
+
+    label: "University Course Forum",
+    description:
+      "A discussion platform for university students to share resources and knowledge.",
   },
 ];
 
@@ -87,6 +96,7 @@ const known: SectionProps[] = [
     ],
   },
 ];
+
 const footerLinks = [
   { href: "https://www.linkedin.com/in/abhijeetray", label: "LinkedIn" },
   { href: "https://twitter.com/abhijeetray", label: "Twitter" },
@@ -100,27 +110,25 @@ export default function Home() {
   const [isHoveringLink, setIsHoveringLink] = useState(false); // Track hover state
   const words = ["Hi.", "it's", "Abhijeet", "Ray", "🧡"];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [isMounted, setIsMounted] = useState(false); // Track if component is mounted
 
   useEffect(() => {
-    // Function to check if a mouse/trackpad is available
+    setIsMounted(true);
     const checkPointer = () => {
       setIsMouseConnected(window.matchMedia("(pointer: fine)").matches);
     };
 
-    // Run check on mount and on resize
     checkPointer();
     window.addEventListener("resize", checkPointer);
 
+    const interval = setInterval(() => {
+      setCurrentWordIndex((prev) => (prev + 1) % words.length);
+    }, 500);
+
     return () => {
       window.removeEventListener("resize", checkPointer);
+      clearInterval(interval);
     };
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
-    }, 500);
-    return () => clearInterval(interval);
   }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -145,10 +153,10 @@ export default function Home() {
     <div
       className="relative w-full"
       onMouseMove={handleMouseMove}
-      style={{ cursor: isMouseConnected ? "none" : "auto" }}
+      data-hydrate-cursor={isMounted && isMouseConnected ? "true" : "false"}
     >
-      {/* Custom Cursor Effect - Only Show if Mouse is Connected */}
-      {isMouseConnected && !isHoveringLink && (
+      {/* Custom Cursor */}
+      {isMounted && isMouseConnected && !isHoveringLink && (
         <div
           className="fixed pointer-events-none text-lg font-semibold text-neutral-600"
           style={{
@@ -162,24 +170,13 @@ export default function Home() {
           {words[currentWordIndex]}
         </div>
       )}
-
-      {/* Hide Default Cursor Only When Mouse is Connected */}
-      {isMouseConnected && (
-        <style jsx>{`
-          * {
-            cursor: none !important;
-          }
-          a,
-          button,
-          input,
-          textarea {
-            cursor: pointer !important;
-          }
-        `}</style>
-      )}
-      <div className="max-w-3xl m-auto mb-10 px-3 flex gap-5 flex-col">
+      <div
+        className={`max-w-3xl m-auto mb-10 px-3 flex gap-5 flex-col ${
+          isMounted && isMouseConnected ? "cursor-none" : ""
+        }`}
+      >
         {/* Sticky Navbar */}
-        <nav className="sticky top-0 bg-white border-b -sm z-50">
+        <nav className="sticky top-0 bg-white border-b shadow-sm z-50">
           <div className="max-w-3xl m-auto px-3 py-2 flex justify-end gap-4">
             <button
               onClick={scrollToForm}
@@ -214,7 +211,7 @@ export default function Home() {
           Experienced web developer specializing in full-stack applications.
         </p>
 
-        <div className="p-5 border  ">
+        <div className="p-5 border rounded-md shadow">
           {known.map((itemk, index) => (
             <div key={index}>
               <h2 className="font-semibold text-lg text-gray-600 mt-8">
@@ -240,13 +237,17 @@ export default function Home() {
         </div>
 
         <h2 className="font-semibold text-2xl mt-8">Projects</h2>
+
         {projects.map((project, index) => (
-          <div key={index} className="mt-5 border p-4 rounded-lg ">
+          <div
+            key={index}
+            className="max-w-lg mt-3 border p-4 rounded-lg shadow"
+          >
             <h3 className="text-gray-700 text-xl font-semibold">
               {project.label}
             </h3>
             <p className="text-gray-700">{project.description}</p>
-            <p className="mt-3">
+            <p className="my-3">
               <strong>Tools Used:</strong> {project.tools.join(", ")}
             </p>
             <a
@@ -272,16 +273,33 @@ export default function Home() {
           </div>
         ))}
 
+        <h2 className="font-semibold text-2xl mt-8">Writting</h2>
+        <div className=" ">
+          {Writting.map((heading, index) => (
+            <div key={index} className="ml-4 mt-3">
+              <a
+                href={heading.href}
+                className="text-blue-600 underline hover:text-blue-800"
+                target="_blank"
+                rel="noopener noreferrer"
+                onMouseEnter={() => setIsHoveringLink(true)} // Show palm cursor on hover
+                onMouseLeave={() => setIsHoveringLink(false)} // Hide palm cursor on leave
+              >
+                {heading.label}
+              </a>
+            </div>
+          ))}
+        </div>
+
         {/* Contact Form */}
         <form
           id="contact-form"
           onSubmit={handleSubmit}
-          className="mt-10 p-5 border  "
+          className="mt-10 p-5 border rounded-md shadow"
         >
-          <h2 className="font-semibold text-2xl mb-5">Contact Me</h2>
+          <h2 className="font-semibold text-xl mb-5">Contact Me</h2>
           <div className="space-y-4">
             <div>
-              {/* <label className="block text-gray-700">Email</label> */}
               <input
                 placeholder="Email"
                 type="email"
@@ -289,19 +307,18 @@ export default function Home() {
                 onMouseEnter={() => setIsHoveringLink(true)} // Show palm cursor on hover
                 onMouseLeave={() => setIsHoveringLink(false)} // Hide palm cursor on leave
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2 border "
+                className="w-full p-2 border rounded-md"
                 required
               />
             </div>
             <div>
-              {/* <label className="block text-gray-700">Message</label> */}
               <textarea
                 placeholder="Message"
                 onMouseEnter={() => setIsHoveringLink(true)} // Show palm cursor on hover
                 onMouseLeave={() => setIsHoveringLink(false)} // Hide palm cursor on leave
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full p-2 border "
+                className="w-full p-2 border rounded-md"
                 rows={4}
                 required
               />

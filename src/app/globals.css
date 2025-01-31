@@ -20,6 +20,17 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+[data-hydrate-cursor="true"] {
+  cursor: none !important;
+}
+
+[data-hydrate-cursor="true"] a,
+[data-hydrate-cursor="true"] button,
+[data-hydrate-cursor="true"] input,
+[data-hydrate-cursor="true"] textarea {
+  cursor: pointer !important;
+}
+
 @keyframes fade {
   0% {
     opacity: 0;
