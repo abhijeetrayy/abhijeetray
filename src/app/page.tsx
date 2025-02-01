@@ -64,9 +64,9 @@ const Writting = [
       "A platform where movie enthusiasts connect and discuss films.",
   },
   {
-    href: "https://example.com/university-course-forum",
+    href: "https://abhijeetray.hashnode.dev/ideas-for-ai-integration-that-can-better-nextjs-projects",
 
-    label: "University Course Forum",
+    label: "Ideas for AI integration that can better NextJs projects",
     description:
       "A discussion platform for university students to share resources and knowledge.",
   },
