@@ -110,8 +110,6 @@ const known: SectionProps[] = [
     title: "Tools",
     items: [
       { href: "https://git-scm.com/", label: "Git" },
-      // { href: "https://www.docker.com/", label: "Docker" },
-      // { href: "https://www.jenkins.io/", label: "Jenkins" },
       { href: "https://www.postman.com/", label: "Postman" },
     ],
   },
@@ -120,8 +118,6 @@ const known: SectionProps[] = [
     items: [
       { href: "https://www.typescriptlang.org/", label: "TypeScript" },
       { href: "https://www.javascript.com/", label: "JavaScript" },
-      // { href: "https://www.python.org/", label: "Python" },
-      // { href: "https://go.dev/", label: "Go" },
     ],
   },
   {
@@ -138,25 +134,15 @@ const known: SectionProps[] = [
     items: [
       { href: "https://www.postgresql.org/", label: "PostgreSQL" },
       { href: "https://www.mongodb.com/", label: "MongoDB" },
-      // { href: "https://www.mysql.com/", label: "MySQL" },
     ],
   },
   {
     title: "Cloud Services",
     items: [
-      // { href: "https://aws.amazon.com/", label: "AWS" },
       { href: "https://vercel.com/", label: "Vercel" },
       { href: "https://supabase.com/", label: "Supabase" },
     ],
   },
-  // {
-  //   title: "Other",
-  //   items: [
-  //     { href: "https://graphql.org/", label: "GraphQL" },
-  //     { href: "https://www.prisma.io/", label: "Prisma" },
-  //     { href: "https://jestjs.io/", label: "Jest" },
-  //   ],
-  // },
 ];
 
 const footerLinks: FooterLink[] = [
@@ -177,6 +163,8 @@ export default function Home() {
   const words = ["Hi.", "it's", "Abhijeet", "Ray", "🧡"];
   const [currentWordIndex, setCurrentWordIndex] = useState<number>(0);
   const [isMounted, setIsMounted] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showSuccess, setShowSuccess] = useState<boolean>(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -198,7 +186,7 @@ export default function Home() {
       window.removeEventListener("resize", checkPointer);
       clearInterval(interval);
     };
-  }, [isHoveringLink]); // Depend on isHoveringLink to pause animation when hovering
+  }, [isHoveringLink]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (isMouseConnected) {
@@ -208,7 +196,19 @@ export default function Home() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    alert(`Email: ${email}\nMessage: ${message}`);
+    setLoading(true);
+
+    setTimeout(() => {
+      setLoading(false);
+      setShowSuccess(true);
+      setEmail("");
+      setMessage("");
+
+      // Hide the success popup after 3 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 3000);
+    }, 2000);
   };
 
   const scrollToForm = () => {
@@ -323,7 +323,7 @@ export default function Home() {
         {projects.map((project, index) => (
           <div
             key={index}
-            className=" w-full mt-3 border p-4 rounded-lg shadow flex flex-col gap-4"
+            className="w-full mt-3 border p-4 rounded-lg shadow flex flex-col gap-4"
           >
             <div className="flex flex-col gap-2">
               <h3 className="text-gray-700 text-xl font-semibold">
@@ -391,7 +391,7 @@ export default function Home() {
           ref={formRef}
           id="contact-form"
           onSubmit={handleSubmit}
-          className="mt-10 p-5 border rounded-md shadow"
+          className="mt-10 p-5 border rounded-md shadow relative"
         >
           <h2 className="font-semibold text-xl mb-5">Contact Me</h2>
           <div className="space-y-4">
@@ -405,6 +405,7 @@ export default function Home() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full p-2 border rounded-md"
                 required
+                disabled={loading}
               />
             </div>
             <div>
@@ -417,17 +418,52 @@ export default function Home() {
                 className="w-full p-2 border rounded-md"
                 rows={4}
                 required
+                disabled={loading}
               />
             </div>
             <button
               type="submit"
-              className="underline text-blue-600"
+              className="underline text-blue-600 flex items-center gap-2"
               onMouseEnter={() => setIsHoveringLink(true)}
               onMouseLeave={() => setIsHoveringLink(false)}
+              disabled={loading}
             >
-              Submit
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-blue-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Sending...
+                </>
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
+
+          {/* Success Popup */}
+          {showSuccess && (
+            <div className="absolute top-0 left-0 right-0 bg-green-500 text-white p-4 rounded-md shadow-lg text-center animate-fade-in">
+              <p>Message sent successfully!</p>
+            </div>
+          )}
         </form>
 
         <footer className="list-none mt-10 border-t pt-5 flex flex-row gap-4">
